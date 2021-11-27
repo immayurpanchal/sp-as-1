@@ -127,12 +127,14 @@ const App = () => {
 						}
 					/>
 				</div>
-				<div className='d-flex'>
-					<button className={`btn btn-primary mx-3`} type='submit'>
+				<div className='d-flex justify-content-center'>
+					<button className='btn btn-primary mx-3 col-4' type='submit'>
 						Validate
 					</button>
 					<button
-						className={`btn btn-primary ${!isSubmitEnabled ? 'disabled' : ''}`}
+						className={`btn btn-primary col-4 ${
+							!isSubmitEnabled ? 'disabled' : ''
+						}`}
 						type='button'
 					>
 						Submit
@@ -218,13 +220,16 @@ const App = () => {
 
 	const readFile = (file) => {
 		try {
-			if (file.type !== 'text/csv') throw new Error('File must be a CSV file');
 			const reader = new FileReader();
 			reader.onload = () => {
 				const result = reader.result.split('\n')[0];
-				const [address, bedroom, bathroom, description] = result.split(';');
+				const propertyData = result.split(';');
+				if (file.type !== 'text/csv' && propertyData.length < 4)
+					return alert(
+						'File must be a valid CSV file separated with ; and must have 4 columns'
+					);
+				const [address, bedroom, bathroom, description] = propertyData;
 				setCsvData({ address, bedroom, bathroom, description });
-				console.log({ address, bedroom, bathroom, description });
 				setFormVisibility(true);
 			};
 			reader.readAsText(file);
@@ -253,8 +258,8 @@ const App = () => {
 
 	return (
 		<div className='App container-sm card border-secondary p-5 my-5'>
-			<div className='d-flex flex-column mt-5'>
-				<div className='d-flex justify-content-center align-items-center'>
+			<div className='d-flex flex-column'>
+				<div className='d-sm-flex justify-content-center align-items-center'>
 					<button
 						className='btn btn-primary mx-3'
 						onClick={() => setFormVisibility((prevState) => !prevState)}
