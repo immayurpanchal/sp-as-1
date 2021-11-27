@@ -12,8 +12,9 @@ const initialState = {
 const formReducer = (state = initialState, action) => {
 	switch (action.type) {
 		case 'manual':
-		case 'csv':
 			return { ...state, [action.name]: action.value };
+		case 'csv':
+			return { ...action.value };
 		default:
 			return state;
 	}
@@ -24,33 +25,32 @@ const App = () => {
 	const [isFormVisible, setFormVisibility] = useState(false);
 	const [state, dispatch] = useReducer(formReducer, initialState);
 	const [csvData, setCsvData] = useState(null);
+	const [isSubmitEnabled, setSubmitEnabled] = useState(false);
+	const [images, setImages] = useState([]);
 
 	const handleSubmit = (e) => {
+		if (e.target.checkValidity()) {
+			setSubmitEnabled(true);
+		}
 		e.preventDefault();
+
 		console.log(state);
-
 		e.target.classList.add('was-validated');
-	};
-
-	const handleChange = (e) => {
-		const { id, value } = e.target;
-		dispatch({ id, value });
 	};
 
 	const renderForm = () => {
 		return (
 			<form
 				onSubmit={handleSubmit}
-				onChange={handleChange}
-				className='mt-3 needs-validation'
+				className='mt-5 needs-validation'
 				noValidate
+				name='form-sp'
 			>
-				<div className='mb-3'>
+				<div className='mb-5 row'>
 					<Input
 						required
 						key='address'
-						defaultValue={state.address}
-						type='text'
+						type='textarea'
 						className='form-control'
 						id='address'
 						label='Address'
@@ -67,11 +67,12 @@ const App = () => {
 						errorMessage='Address must be a valid address'
 					/>
 				</div>
-				<div className='mb-3'>
+				<div className='mb-5 row'>
 					<Input
 						required
 						key='bedroom'
-						defaultValue={state.bedroom}
+						min='1'
+						max='10'
 						type='number'
 						label='Bedroom'
 						id='bedroom'
@@ -87,11 +88,12 @@ const App = () => {
 						errorMessage='Bedroom must be between 5 and 10'
 					/>
 				</div>
-				<div className='mb-3'>
+				<div className='mb-5 row'>
 					<Input
 						required
 						key='bathroom'
-						defaultValue={state.bathroom}
+						min='1'
+						max='5'
 						type='number'
 						id='bathroom'
 						label='Bathroom'
@@ -107,11 +109,10 @@ const App = () => {
 						errorMessage='Bathroom must be between 1 and 5'
 					/>
 				</div>
-				<div className='mb-3'>
+				<div className='mb-5 row'>
 					<Input
-						type='text'
+						type='textarea'
 						key='description'
-						defaultValue={state.description}
 						className='form-control'
 						id='description'
 						label='Description'
@@ -126,10 +127,92 @@ const App = () => {
 						}
 					/>
 				</div>
-				<button className={`btn btn-primary`} type='submit'>
-					Submit
-				</button>
+				<div className='d-flex'>
+					<button className={`btn btn-primary mx-3`} type='submit'>
+						Validate
+					</button>
+					<button
+						className={`btn btn-primary ${!isSubmitEnabled ? 'disabled' : ''}`}
+						type='button'
+					>
+						Submit
+					</button>
+				</div>
 			</form>
+		);
+	};
+
+	const getBase64 = (file) =>
+		new Promise((resolve, reject) => {
+			const reader = new FileReader();
+			reader.readAsDataURL(file);
+			reader.onload = () => {
+				resolve(reader.result);
+			};
+			reader.onerror = (error) => {
+				reject(error);
+			};
+		});
+
+	const renderDragDrop = () => {
+		return (
+			<div
+				id='drag-region'
+				className='shadow mt-5 border-3 mb-5'
+				style={{ height: '200px' }}
+				onDrop={(e) => {
+					e.preventDefault();
+					e.stopPropagation();
+
+					const files = Array.from(e.dataTransfer.files);
+					if (images.length + files.length > 4) {
+						return alert('You can only upload 4 images');
+					}
+
+					const imagePromises = files.map(async (file) => {
+						return await getBase64(file);
+					});
+					Promise.allSettled(imagePromises)
+						.then((results) => {
+							const images64 = results.map((result) => result.value);
+							setImages((prevImages) => [...prevImages, ...images64]);
+						})
+						.catch((err) => {
+							console.log(err);
+						});
+				}}
+				onDragOver={(e) => e.preventDefault()}
+			>
+				<div className=''>Drag & Drop images to upload</div>
+			</div>
+		);
+	};
+
+	const renderImages = () => {
+		return (
+			<div className='d-flex '>
+				{images.map((image, index) => {
+					return (
+						<div className='form-check mt-5 d-flex align-items-center'>
+							<input
+								type='radio'
+								name='featured-image'
+								className='form-check-input'
+							/>
+							<label htmlFor='featured-image' className='form-check-label mx-3'>
+								<img
+									src={image}
+									alt='drag'
+									key={index}
+									width='300px'
+									height='150px'
+								/>
+								;
+							</label>
+						</div>
+					);
+				})}
+			</div>
 		);
 	};
 
@@ -150,41 +233,65 @@ const App = () => {
 		}
 	};
 
+	const viewSubmittedForm = () => {
+		console.log({ ...state, images });
+	};
+
 	useEffect(() => {
 		if (!isFormVisible || !csvData) return;
 
-		dispatch({ type: 'csv', name: 'address', value: csvData.address });
-		dispatch({ type: 'csv', name: 'bedroom', value: +csvData.bedroom });
-		dispatch({ type: 'csv', name: 'bathroom', value: +csvData.bathroom });
-		dispatch({ type: 'csv', name: 'description', value: csvData.description });
+		dispatch({
+			type: 'csv',
+			value: {
+				address: csvData.address,
+				bedroom: +csvData.bedroom,
+				bathroom: +csvData.bathroom,
+				description: csvData.description,
+			},
+		});
 	}, [csvData, isFormVisible]);
 
 	return (
-		<div className='App container-sm'>
-			<div className='d-flex flex-column'>
-				<button
-					className='btn btn-primary'
-					onClick={() => setFormVisibility((prevState) => !prevState)}
-					type='button'
-				>
-					Add Manually
-				</button>
-				<span>OR</span>
-				<label htmlFor='formFileSm' className='form-label'>
-					Upload CSV
-				</label>
-				<Input
-					className='form-control'
-					type='file'
-					id='formFile'
-					accept='.csv'
-					onChange={(e) => {
-						readFile(e.target.files[0]);
-					}}
-					validate={(e) => e.target.files[0]?.type === 'text/csv'}
-					errorMessage='File must be a CSV file'
-				/>
+		<div className='App container-sm card border-secondary p-5 my-5'>
+			<div className='d-flex flex-column mt-5'>
+				<div className='d-flex justify-content-center align-items-center'>
+					<button
+						className='btn btn-primary mx-3'
+						onClick={() => setFormVisibility((prevState) => !prevState)}
+						type='button'
+					>
+						Add Manually
+					</button>
+					<span>OR</span>
+					<form
+						onSubmit={(e) => {
+							e.preventDefault();
+						}}
+						name='theForm'
+						className='mx-3'
+					>
+						<Input
+							className='form-control'
+							type='file'
+							id='formFile'
+							accept='.csv'
+							onChange={(e) => {
+								document.querySelector('[name=theForm]').requestSubmit();
+								readFile(e.target.files[0]);
+							}}
+							validate={(e) => e.target.files[0]?.type === 'text/csv'}
+							errorMessage='File must be a CSV file'
+						/>
+					</form>
+				</div>
 				{isFormVisible && renderForm()}
+				{isSubmitEnabled && renderImages()}
+				{isSubmitEnabled && renderDragDrop()}
+				{isSubmitEnabled && (
+					<button onClick={viewSubmittedForm} className='btn btn-primary mb-5'>
+						Final Submit
+					</button>
+				)}
 			</div>
 		</div>
 	);
