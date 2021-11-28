@@ -233,7 +233,7 @@ const App = () => {
       reader.onload = () => {
         const result = reader.result.split('\n')[0]
         const propertyData = result.split(';')
-        if (file.type !== 'text/csv' && propertyData.length < 4)
+        if (file.type !== 'text/csv' || propertyData.length !== 4)
           return alert(
             'File must be a valid CSV file separated with ; and must have 4 columns'
           )
@@ -254,13 +254,14 @@ const App = () => {
   useEffect(() => {
     if (!isFormVisible || !csvData) return
 
+    // Handled CSV file invalid data to some default values
     dispatch({
       type: 'csv',
       value: {
-        address: csvData.address,
-        bedroom: +csvData.bedroom,
-        bathroom: +csvData.bathroom,
-        description: csvData.description
+        address: csvData.address || '',
+        bedroom: +csvData.bedroom || 1,
+        bathroom: +csvData.bathroom || 1,
+        description: csvData.description || ''
       }
     })
   }, [csvData, isFormVisible])
