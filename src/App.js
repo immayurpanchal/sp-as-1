@@ -1,10 +1,11 @@
 import { useEffect, useReducer, useState } from 'react'
 import './App.css'
 import Input from './components/Input'
+import useGooglePlace from './hooks/useGooglePlace'
 
 const initialState = {
-  bedroom: 0,
-  bathroom: 0,
+  bedroom: 1,
+  bathroom: 1,
   address: '',
   description: ''
 }
@@ -21,14 +22,19 @@ const formReducer = (state = initialState, action) => {
 }
 
 const App = () => {
-  // TODO: .eslintrc .prettierrc
-  const [isFormVisible, setFormVisibility] = useState(false)
+  const [isFormVisible, setFormVisibility] = useState(true)
   const [state, dispatch] = useReducer(formReducer, initialState)
   const [csvData, setCsvData] = useState(null)
   const [isDataValid, setDataValid] = useState(false)
   const [isFormSubmitted, setFormSubmit] = useState(false)
   const [images, setImages] = useState([])
   const [featuredImage, setFeaturedImage] = useState(null)
+  const {
+    place,
+    loading: loadingPlace,
+    error: errorPlace,
+    handlePlaceSearch
+  } = useGooglePlace()
 
   const handleSubmit = e => {
     if (e.target.checkValidity()) {
@@ -55,7 +61,7 @@ const App = () => {
             className='form-control'
             id='address'
             label='Address'
-            value={state.address}
+            value={state.address || ''}
             validate={({ target: { value } }) => value.trim().length > 0}
             onChange={e =>
               dispatch({
@@ -77,7 +83,7 @@ const App = () => {
             type='number'
             label='Bedroom'
             id='bedroom'
-            value={state.bedroom}
+            value={state.bedroom || 0}
             onChange={e =>
               dispatch({
                 type: 'manual',
@@ -98,7 +104,7 @@ const App = () => {
             type='number'
             id='bathroom'
             label='Bathroom'
-            value={state.bathroom}
+            value={state.bathroom || 0}
             validate={({ target: { value } }) => +value >= 1 && +value <= 5}
             onChange={e =>
               dispatch({
@@ -117,7 +123,7 @@ const App = () => {
             className='form-control'
             id='description'
             label='Description'
-            value={state.description}
+            value={state.description || ''}
             validate={() => true}
             onChange={e =>
               dispatch({
@@ -221,7 +227,6 @@ const App = () => {
                   width='300px'
                   height='150px'
                 />
-                ;
               </label>
             </div>
           )
@@ -267,6 +272,16 @@ const App = () => {
       }
     })
   }, [csvData, isFormVisible])
+
+  useEffect(() => {
+    handlePlaceSearch({ lat: 123, lng: 123 })
+  }, [])
+
+  useEffect(() => {
+    if (loadingPlace || errorPlace) return
+
+    dispatch({ type: 'manual', name: 'address', value: place || '' })
+  }, [place])
 
   return (
     <div className='App container-sm card border-secondary p-5 my-5'>
