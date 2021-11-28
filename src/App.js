@@ -38,7 +38,6 @@ const App = () => {
     }
     e.preventDefault()
 
-    console.log(state)
     e.target.classList.add('was-validated')
   }
 
