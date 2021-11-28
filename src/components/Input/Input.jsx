@@ -17,6 +17,8 @@ const Input = props => {
           value={value || ''}
           className='form-control'
           onInput={e => {
+            if (typeof props.validate !== 'function') return
+
             const isValidVal = !!props.validate(e)
             if (!isValidVal) {
               e.currentTarget.setCustomValidity(errorMessage)

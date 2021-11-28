@@ -83,8 +83,8 @@ const App = () => {
                 value: +e.target.value
               })
             }
-            validate={({ target: { value } }) => +value >= 5 && +value <= 10}
-            errorMessage='Bedroom must be between 5 and 10'
+            validate={({ target: { value } }) => +value >= 1 && +value <= 10}
+            errorMessage='Bedroom must be between 1 and 10'
           />
         </div>
         <div className='mb-5 row'>
