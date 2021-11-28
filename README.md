@@ -4,6 +4,9 @@
 # Assumptions and Reasons behind decisions 
 1. Created a useGooglePlace hook to mock the API response of Google Place API as Google is not allowing me to add prepaid card.
 2. As setCustomValidity() works only on form Submit, hence created a Validate button to validate the input values and then enabled the submit.
+3. Added only Basic Cypress and React Testing Library tests to understand the writing style of the code.
+
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
