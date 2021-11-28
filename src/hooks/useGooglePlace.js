@@ -1,29 +1,26 @@
 import { useEffect, useState } from 'react'
+import { mockPlaces } from '../utils/mockData'
 
 const useGooglePlace = () => {
-  const [place, setPlace] = useState(null)
+  const [places, setPlaces] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
-  const handlePlaceSearch = latLng => {
-    console.log(
-      'Doing nothing with request latLng in actual API we can get the address from lat and lng',
-      latLng
-    )
+  const handlePlaceSearch = () => {
     setLoading(true)
     // Mock API call to fetch the Google Plus API response
     setTimeout(() => {
       setLoading(false)
-      setPlace('SP, Ahemedabad, Gujarat, India')
+      setPlaces(mockPlaces)
     }, 500)
   }
 
   useEffect(() => {
     setError(false)
-  }, [place])
+  }, [places])
 
   return {
-    place,
+    places,
     loading,
     error,
     handlePlaceSearch
