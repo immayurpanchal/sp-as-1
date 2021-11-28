@@ -127,7 +127,10 @@ const App = () => {
           />
         </div>
         <div className='d-flex justify-content-center'>
-          <button className='btn btn-primary mx-3 col-4' type='submit'>
+          <button
+            className='btn btn-primary mx-3 col-4'
+            type='submit'
+            id='btn-validate'>
             Validate
           </button>
           <button
@@ -135,7 +138,8 @@ const App = () => {
               !isDataValid ? 'disabled' : ''
             }`}
             type='button'
-            onClick={() => setFormSubmit(true)}>
+            onClick={() => setFormSubmit(true)}
+            id='btn-submit'>
             Submit
           </button>
         </div>
@@ -277,7 +281,8 @@ const App = () => {
           <button
             className='btn btn-primary mx-3'
             onClick={() => setFormVisibility(prevState => !prevState)}
-            type='button'>
+            type='button'
+            id='addManually'>
             Add Manually
           </button>
           <span>OR</span>
@@ -305,7 +310,10 @@ const App = () => {
         {isDataValid && isFormSubmitted && renderImages()}
         {isDataValid && isFormSubmitted && renderDragDrop()}
         {isDataValid && isFormSubmitted && (
-          <button onClick={viewSubmittedForm} className='btn btn-primary mb-5'>
+          <button
+            onClick={viewSubmittedForm}
+            className='btn btn-primary mb-5'
+            id='finalSubmit'>
             Final Submit
           </button>
         )}

@@ -15,7 +15,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "cypress:test": "cypress open"
   },
   "eslintConfig": {
     "extends": [
@@ -36,6 +37,10 @@
     ]
   },
   "devDependencies": {
-    "@nrwl/eslint-plugin-nx": "^13.2.3"
+    "@cypress/react": "^5.10.3",
+    "@cypress/webpack-dev-server": "^1.7.0",
+    "@nrwl/eslint-plugin-nx": "^13.2.3",
+    "cypress": "^9.1.0",
+    "cypress-file-upload": "^5.0.8"
   }
 }
