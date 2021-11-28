@@ -1,5 +1,6 @@
 import { useEffect, useReducer, useState } from 'react'
 import './App.css'
+import DataList from './components/DataList'
 import Input from './components/Input'
 import useGooglePlace from './hooks/useGooglePlace'
 
@@ -22,19 +23,14 @@ const formReducer = (state = initialState, action) => {
 }
 
 const App = () => {
-  const [isFormVisible, setFormVisibility] = useState(true)
+  const [isFormVisible, setFormVisibility] = useState(false)
   const [state, dispatch] = useReducer(formReducer, initialState)
   const [csvData, setCsvData] = useState(null)
   const [isDataValid, setDataValid] = useState(false)
   const [isFormSubmitted, setFormSubmit] = useState(false)
   const [images, setImages] = useState([])
   const [featuredImage, setFeaturedImage] = useState(null)
-  const {
-    place,
-    loading: loadingPlace,
-    error: errorPlace,
-    handlePlaceSearch
-  } = useGooglePlace()
+  const { places, handlePlaceSearch } = useGooglePlace()
 
   const handleSubmit = e => {
     if (e.target.checkValidity()) {
@@ -46,6 +42,11 @@ const App = () => {
     e.target.classList.add('was-validated')
   }
 
+  const handleDataListRef = ref => {
+    if (!ref.current) return
+    ref.current.value = state.address
+  }
+
   const renderForm = () => {
     return (
       <form
@@ -54,24 +55,16 @@ const App = () => {
         noValidate
         name='form-sp'>
         <div className='mb-5 row'>
-          <Input
-            required
-            key='address'
-            type='textarea'
-            className='form-control'
-            id='address'
+          <DataList
             label='Address'
-            value={state.address || ''}
-            validate={({ target: { value } }) => value.trim().length > 0}
-            onChange={e =>
-              dispatch({
-                type: 'manual',
-                name: e.target.name,
-                value: e.target.value
-              })
+            id='address'
+            placeholder='Type to search the address'
+            options={places}
+            onSelect={value =>
+              dispatch({ type: 'manual', name: 'address', value })
             }
-            // pattern='[A-Z ]+'
             errorMessage='Address must be a valid address'
+            reference={handleDataListRef}
           />
         </div>
         <div className='mb-5 row'>
@@ -274,14 +267,8 @@ const App = () => {
   }, [csvData, isFormVisible])
 
   useEffect(() => {
-    handlePlaceSearch({ lat: 123, lng: 123 })
+    handlePlaceSearch()
   }, [])
-
-  useEffect(() => {
-    if (loadingPlace || errorPlace) return
-
-    dispatch({ type: 'manual', name: 'address', value: place || '' })
-  }, [place])
 
   return (
     <div className='App container-sm card border-secondary p-5 my-5'>
