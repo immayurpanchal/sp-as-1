@@ -25,12 +25,14 @@ const App = () => {
 	const [isFormVisible, setFormVisibility] = useState(false);
 	const [state, dispatch] = useReducer(formReducer, initialState);
 	const [csvData, setCsvData] = useState(null);
-	const [isSubmitEnabled, setSubmitEnabled] = useState(false);
+	const [isDataValid, setDataValid] = useState(false);
+	const [isFormSubmitted, setFormSubmit] = useState(false);
 	const [images, setImages] = useState([]);
+	const [featuredImage, setFeaturedImage] = useState(null);
 
 	const handleSubmit = (e) => {
 		if (e.target.checkValidity()) {
-			setSubmitEnabled(true);
+			setDataValid(true);
 		}
 		e.preventDefault();
 
@@ -133,9 +135,10 @@ const App = () => {
 					</button>
 					<button
 						className={`btn btn-primary col-4 ${
-							!isSubmitEnabled ? 'disabled' : ''
+							!isDataValid ? 'disabled' : ''
 						}`}
 						type='button'
+						onClick={() => setFormSubmit(true)}
 					>
 						Submit
 					</button>
@@ -192,14 +195,21 @@ const App = () => {
 
 	const renderImages = () => {
 		return (
-			<div className='d-flex '>
+			<div className='d-flex flex-wrap'>
 				{images.map((image, index) => {
 					return (
-						<div className='form-check mt-5 d-flex align-items-center'>
+						<div
+							className='form-check mt-5 d-flex align-items-center'
+							key={`featured-image-${index}`}
+						>
 							<input
 								type='radio'
 								name='featured-image'
 								className='form-check-input'
+								id={`featured-image-${index}`}
+								onChange={(e) =>
+									setFeaturedImage({ id: e.target.id, url: image })
+								}
 							/>
 							<label htmlFor='featured-image' className='form-check-label mx-3'>
 								<img
@@ -239,7 +249,7 @@ const App = () => {
 	};
 
 	const viewSubmittedForm = () => {
-		console.log({ ...state, images });
+		console.log({ ...state, images, featuredImage });
 	};
 
 	useEffect(() => {
@@ -290,9 +300,9 @@ const App = () => {
 					</form>
 				</div>
 				{isFormVisible && renderForm()}
-				{isSubmitEnabled && renderImages()}
-				{isSubmitEnabled && renderDragDrop()}
-				{isSubmitEnabled && (
+				{isDataValid && isFormSubmitted && renderImages()}
+				{isDataValid && isFormSubmitted && renderDragDrop()}
+				{isDataValid && isFormSubmitted && (
 					<button onClick={viewSubmittedForm} className='btn btn-primary mb-5'>
 						Final Submit
 					</button>
