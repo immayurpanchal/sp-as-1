@@ -33,19 +33,10 @@ const App = () => {
   const { places, handlePlaceSearch } = useGooglePlace()
 
   const handleSubmit = e => {
-    if (e.target.checkValidity()) {
-      setDataValid(true)
-    }
+    e.target.checkValidity() ? setDataValid(true) : setDataValid(false)
     e.preventDefault()
 
     e.target.classList.add('was-validated')
-  }
-
-  const handleDataListRef = ref => {
-    if (!ref.current) {
-      return
-    }
-    ref.current.value = state.address
   }
 
   const renderForm = () => {
@@ -62,9 +53,13 @@ const App = () => {
             label='Address'
             options={places}
             placeholder='Type to search the address'
-            reference={handleDataListRef}
-            onSelect={value =>
-              dispatch({ type: 'manual', name: 'address', value })
+            value={state.address}
+            onChange={e =>
+              dispatch({
+                type: 'manual',
+                name: 'address',
+                value: e.target.value
+              })
             }
           />
         </div>
@@ -264,6 +259,13 @@ const App = () => {
   }
 
   useEffect(() => {
+    if (isFormVisible) {
+      const form = document.querySelector('[name=theForm]')
+      form?.checkValidity() ? setDataValid(true) : setDataValid(false)
+    }
+  }, [state, isFormVisible])
+
+  useEffect(() => {
     if (!isFormVisible || !csvData) {
       return
     }
@@ -284,38 +286,47 @@ const App = () => {
     handlePlaceSearch()
   }, [handlePlaceSearch])
 
+  useEffect(() => {
+    if (!places.length || !isFormVisible || csvData) {
+      return
+    }
+    dispatch({ type: 'manual', name: 'address', value: places[0].value })
+  }, [places, isFormVisible, csvData])
+
   return (
     <div className='App container-sm card border-secondary p-5 my-5'>
       <div className='d-flex flex-column'>
-        <div className='d-sm-flex justify-content-center align-items-center'>
-          <button
-            className='btn btn-primary mx-3'
-            id='addManually'
-            type='button'
-            onClick={() => setFormVisibility(prevState => !prevState)}>
-            Add Manually
-          </button>
-          <span>OR</span>
-          <form
-            className='mx-3'
-            name='theForm'
-            onSubmit={e => {
-              e.preventDefault()
-            }}>
-            <Input
-              accept='.csv'
-              className='form-control'
-              errorMessage='File must be a CSV file'
-              id='formFile'
-              type='file'
-              validate={e => e.target.files[0]?.type === 'text/csv'}
-              onChange={e => {
-                document.querySelector('[name=theForm]').requestSubmit()
-                readFile(e.target.files[0])
-              }}
-            />
-          </form>
-        </div>
+        {!isFormVisible && (
+          <div className='d-sm-flex justify-content-center align-items-center'>
+            <button
+              className='btn btn-primary mx-3'
+              id='addManually'
+              type='button'
+              onClick={() => setFormVisibility(prevState => !prevState)}>
+              Add Manually
+            </button>
+            <span>OR</span>
+            <form
+              className='mx-3'
+              name='theForm'
+              onSubmit={e => {
+                e.preventDefault()
+              }}>
+              <Input
+                accept='.csv'
+                className='form-control'
+                errorMessage='File must be a CSV file'
+                id='formFile'
+                type='file'
+                validate={e => e.target.files[0]?.type === 'text/csv'}
+                onChange={e => {
+                  document.querySelector('[name=theForm]').requestSubmit()
+                  readFile(e.target.files[0])
+                }}
+              />
+            </form>
+          </div>
+        )}
         {isFormVisible && renderForm()}
         {isDataValid && isFormSubmitted && renderImages()}
         {isDataValid && isFormSubmitted && renderDragDrop()}
