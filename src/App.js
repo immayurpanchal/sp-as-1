@@ -42,39 +42,43 @@ const App = () => {
   }
 
   const handleDataListRef = ref => {
-    if (!ref.current) return
+    if (!ref.current) {
+      return
+    }
     ref.current.value = state.address
   }
 
   const renderForm = () => {
     return (
       <form
-        onSubmit={handleSubmit}
-        className='mt-5 needs-validation'
         noValidate
-        name='form-sp'>
+        className='mt-5 needs-validation'
+        name='form-sp'
+        onSubmit={handleSubmit}>
         <div className='mb-5 row'>
           <DataList
-            label='Address'
+            errorMessage='Address must be a valid address'
             id='address'
-            placeholder='Type to search the address'
+            label='Address'
             options={places}
+            placeholder='Type to search the address'
+            reference={handleDataListRef}
             onSelect={value =>
               dispatch({ type: 'manual', name: 'address', value })
             }
-            errorMessage='Address must be a valid address'
-            reference={handleDataListRef}
           />
         </div>
         <div className='mb-5 row'>
           <Input
-            required
             key='bedroom'
-            min='1'
-            max='10'
-            type='number'
-            label='Bedroom'
+            required
+            errorMessage='Bedroom must be between 1 and 10'
             id='bedroom'
+            label='Bedroom'
+            max='10'
+            min='1'
+            type='number'
+            validate={({ target: { value } }) => +value >= 1 && +value <= 10}
             value={state.bedroom || 0}
             onChange={e =>
               dispatch({
@@ -83,21 +87,20 @@ const App = () => {
                 value: +e.target.value
               })
             }
-            validate={({ target: { value } }) => +value >= 1 && +value <= 10}
-            errorMessage='Bedroom must be between 1 and 10'
           />
         </div>
         <div className='mb-5 row'>
           <Input
-            required
             key='bathroom'
-            min='1'
-            max='5'
-            type='number'
+            required
+            errorMessage='Bathroom must be between 1 and 5'
             id='bathroom'
             label='Bathroom'
-            value={state.bathroom || 0}
+            max='5'
+            min='1'
+            type='number'
             validate={({ target: { value } }) => +value >= 1 && +value <= 5}
+            value={state.bathroom || 0}
             onChange={e =>
               dispatch({
                 type: 'manual',
@@ -105,18 +108,17 @@ const App = () => {
                 value: +e.target.value
               })
             }
-            errorMessage='Bathroom must be between 1 and 5'
           />
         </div>
         <div className='mb-5 row'>
           <Input
-            type='textarea'
             key='description'
             className='form-control'
             id='description'
             label='Description'
-            value={state.description || ''}
+            type='textarea'
             validate={() => true}
+            value={state.description || ''}
             onChange={e =>
               dispatch({
                 type: 'manual',
@@ -129,17 +131,17 @@ const App = () => {
         <div className='d-flex justify-content-center'>
           <button
             className='btn btn-primary mx-3 col-4'
-            type='submit'
-            id='btn-validate'>
+            id='btn-validate'
+            type='submit'>
             Validate
           </button>
           <button
             className={`btn btn-primary col-4 ${
               !isDataValid ? 'disabled' : ''
             }`}
+            id='btn-submit'
             type='button'
-            onClick={() => setFormSubmit(true)}
-            id='btn-submit'>
+            onClick={() => setFormSubmit(true)}>
             Submit
           </button>
         </div>
@@ -162,21 +164,24 @@ const App = () => {
   const renderDragDrop = () => {
     return (
       <div
-        id='drag-region'
         className='shadow mt-5 border-3 mb-5'
+        id='drag-region'
         style={{ height: '200px' }}
+        onDragOver={e => e.preventDefault()}
         onDrop={e => {
           e.preventDefault()
           e.stopPropagation()
 
           const files = Array.from(e.dataTransfer.files)
           if (images.length + files.length > 4) {
+            // eslint-disable-next-line no-alert
             return alert('You can only upload 4 images')
           }
 
           // Intentionally set check for only PNG images
           // Based on requirement we can change this to accept any image type
           if (files.some(file => file.type !== 'image/png')) {
+            // eslint-disable-next-line no-alert
             return alert('Only PNG files are allowed')
           }
 
@@ -189,10 +194,10 @@ const App = () => {
               setImages(prevImages => [...prevImages, ...images64])
             })
             .catch(err => {
-              console.log(err)
+              console.error(err)
             })
-        }}
-        onDragOver={e => e.preventDefault()}>
+          return 0
+        }}>
         <div className=''>Drag & Drop images to upload</div>
       </div>
     )
@@ -204,24 +209,24 @@ const App = () => {
         {images.map((image, index) => {
           return (
             <div
-              className='form-check mt-5 d-flex align-items-center'
-              key={`featured-image-${index}`}>
+              key={`featured-image-${index}`}
+              className='form-check mt-5 d-flex align-items-center'>
               <input
-                type='radio'
-                name='featured-image'
                 className='form-check-input'
                 id={`featured-image-${index}`}
+                name='featured-image'
+                type='radio'
                 onChange={e =>
                   setFeaturedImage({ id: e.target.id, url: image })
                 }
               />
-              <label htmlFor='featured-image' className='form-check-label mx-3'>
+              <label className='form-check-label mx-3' htmlFor='featured-image'>
                 <img
-                  src={image}
-                  alt='drag'
                   key={index}
-                  width='300px'
+                  alt='drag'
                   height='150px'
+                  src={image}
+                  width='300px'
                 />
               </label>
             </div>
@@ -237,26 +242,31 @@ const App = () => {
       reader.onload = () => {
         const result = reader.result.split('\n')[0]
         const propertyData = result.split(';')
-        if (file.type !== 'text/csv' || propertyData.length !== 4)
+        if (file.type !== 'text/csv' || propertyData.length !== 4) {
+          // eslint-disable-next-line no-alert
           return alert(
-            'File must be a valid CSV file separated with ; and must have 4 columns'
+            'Only CSV separated with ; and must have 4 columns is allowed'
           )
+        }
         const [address, bedroom, bathroom, description] = propertyData
         setCsvData({ address, bedroom, bathroom, description })
-        setFormVisibility(true)
+        return setFormVisibility(true)
       }
       reader.readAsText(file)
     } catch (error) {
-      console.log(error)
+      console.error(error)
     }
   }
 
   const viewSubmittedForm = () => {
+    // eslint-disable-next-line no-console
     console.log({ ...state, images, featuredImage })
   }
 
   useEffect(() => {
-    if (!isFormVisible || !csvData) return
+    if (!isFormVisible || !csvData) {
+      return
+    }
 
     // Handled CSV file invalid data to some default values
     dispatch({
@@ -272,7 +282,7 @@ const App = () => {
 
   useEffect(() => {
     handlePlaceSearch()
-  }, [])
+  }, [handlePlaceSearch])
 
   return (
     <div className='App container-sm card border-secondary p-5 my-5'>
@@ -280,29 +290,29 @@ const App = () => {
         <div className='d-sm-flex justify-content-center align-items-center'>
           <button
             className='btn btn-primary mx-3'
-            onClick={() => setFormVisibility(prevState => !prevState)}
+            id='addManually'
             type='button'
-            id='addManually'>
+            onClick={() => setFormVisibility(prevState => !prevState)}>
             Add Manually
           </button>
           <span>OR</span>
           <form
+            className='mx-3'
+            name='theForm'
             onSubmit={e => {
               e.preventDefault()
-            }}
-            name='theForm'
-            className='mx-3'>
+            }}>
             <Input
-              className='form-control'
-              type='file'
-              id='formFile'
               accept='.csv'
+              className='form-control'
+              errorMessage='File must be a CSV file'
+              id='formFile'
+              type='file'
+              validate={e => e.target.files[0]?.type === 'text/csv'}
               onChange={e => {
                 document.querySelector('[name=theForm]').requestSubmit()
                 readFile(e.target.files[0])
               }}
-              validate={e => e.target.files[0]?.type === 'text/csv'}
-              errorMessage='File must be a CSV file'
             />
           </form>
         </div>
@@ -311,9 +321,9 @@ const App = () => {
         {isDataValid && isFormSubmitted && renderDragDrop()}
         {isDataValid && isFormSubmitted && (
           <button
-            onClick={viewSubmittedForm}
             className='btn btn-primary mb-5'
-            id='finalSubmit'>
+            id='finalSubmit'
+            onClick={viewSubmittedForm}>
             Final Submit
           </button>
         )}
