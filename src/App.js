@@ -287,35 +287,37 @@ const App = () => {
   return (
     <div className='App container-sm card border-secondary p-5 my-5'>
       <div className='d-flex flex-column'>
-        <div className='d-sm-flex justify-content-center align-items-center'>
-          <button
-            className='btn btn-primary mx-3'
-            id='addManually'
-            type='button'
-            onClick={() => setFormVisibility(prevState => !prevState)}>
-            Add Manually
-          </button>
-          <span>OR</span>
-          <form
-            className='mx-3'
-            name='theForm'
-            onSubmit={e => {
-              e.preventDefault()
-            }}>
-            <Input
-              accept='.csv'
-              className='form-control'
-              errorMessage='File must be a CSV file'
-              id='formFile'
-              type='file'
-              validate={e => e.target.files[0]?.type === 'text/csv'}
-              onChange={e => {
-                document.querySelector('[name=theForm]').requestSubmit()
-                readFile(e.target.files[0])
-              }}
-            />
-          </form>
-        </div>
+        {!isFormVisible && (
+          <div className='d-sm-flex justify-content-center align-items-center'>
+            <button
+              className='btn btn-primary mx-3'
+              id='addManually'
+              type='button'
+              onClick={() => setFormVisibility(prevState => !prevState)}>
+              Add Manually
+            </button>
+            <span>OR</span>
+            <form
+              className='mx-3'
+              name='theForm'
+              onSubmit={e => {
+                e.preventDefault()
+              }}>
+              <Input
+                accept='.csv'
+                className='form-control'
+                errorMessage='File must be a CSV file'
+                id='formFile'
+                type='file'
+                validate={e => e.target.files[0]?.type === 'text/csv'}
+                onChange={e => {
+                  document.querySelector('[name=theForm]').requestSubmit()
+                  readFile(e.target.files[0])
+                }}
+              />
+            </form>
+          </div>
+        )}
         {isFormVisible && renderForm()}
         {isDataValid && isFormSubmitted && renderImages()}
         {isDataValid && isFormSubmitted && renderDragDrop()}
