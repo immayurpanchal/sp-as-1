@@ -63,8 +63,13 @@ const App = () => {
             options={places}
             placeholder='Type to search the address'
             reference={handleDataListRef}
-            onSelect={value =>
-              dispatch({ type: 'manual', name: 'address', value })
+            value={state.address}
+            onChange={e =>
+              dispatch({
+                type: 'manual',
+                name: 'address',
+                value: e.target.value
+              })
             }
           />
         </div>
@@ -283,6 +288,13 @@ const App = () => {
   useEffect(() => {
     handlePlaceSearch()
   }, [handlePlaceSearch])
+
+  useEffect(() => {
+    if (!places.length || !isFormVisible) {
+      return
+    }
+    dispatch({ type: 'manual', name: 'address', value: places[0].value })
+  }, [places, isFormVisible])
 
   return (
     <div className='App container-sm card border-secondary p-5 my-5'>

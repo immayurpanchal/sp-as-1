@@ -5,24 +5,16 @@ const DataList = props => {
     options = [],
     label,
     placeholder,
-    onSelect,
     id,
     errorMessage,
     reference,
+    value,
+    onChange,
     ...restProps
   } = props
+
   const ref = useRef(null)
   const inputRef = useRef(null)
-
-  const handleChange = e => {
-    const currentTypedValue = e.target.value || ''
-    for (const option of ref.current.children) {
-      const value = option.value
-      if (value.toLowerCase() === currentTypedValue.toLowerCase()) {
-        onSelect(value)
-      }
-    }
-  }
 
   return (
     <>
@@ -43,7 +35,8 @@ const DataList = props => {
           list='datalistOptions'
           name={id}
           placeholder={placeholder}
-          onChange={handleChange}
+          value={value}
+          onChange={onChange}
         />
         <datalist ref={ref} id='datalistOptions'>
           {options.map(option => (
