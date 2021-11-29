@@ -33,9 +33,7 @@ const App = () => {
   const { places, handlePlaceSearch } = useGooglePlace()
 
   const handleSubmit = e => {
-    if (e.target.checkValidity()) {
-      setDataValid(true)
-    }
+    e.target.checkValidity() ? setDataValid(true) : setDataValid(false)
     e.preventDefault()
 
     e.target.classList.add('was-validated')
@@ -259,6 +257,13 @@ const App = () => {
     // eslint-disable-next-line no-console
     console.log({ ...state, images, featuredImage })
   }
+
+  useEffect(() => {
+    if (isFormVisible) {
+      const form = document.querySelector('[name=theForm]')
+      form?.checkValidity() ? setDataValid(true) : setDataValid(false)
+    }
+  }, [state, isFormVisible])
 
   useEffect(() => {
     if (!isFormVisible || !csvData) {
