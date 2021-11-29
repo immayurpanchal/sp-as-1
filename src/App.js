@@ -41,13 +41,6 @@ const App = () => {
     e.target.classList.add('was-validated')
   }
 
-  const handleDataListRef = ref => {
-    if (!ref.current) {
-      return
-    }
-    ref.current.value = state.address
-  }
-
   const renderForm = () => {
     return (
       <form
@@ -62,7 +55,6 @@ const App = () => {
             label='Address'
             options={places}
             placeholder='Type to search the address'
-            reference={handleDataListRef}
             value={state.address}
             onChange={e =>
               dispatch({
@@ -290,11 +282,11 @@ const App = () => {
   }, [handlePlaceSearch])
 
   useEffect(() => {
-    if (!places.length || !isFormVisible) {
+    if (!places.length || !isFormVisible || csvData) {
       return
     }
     dispatch({ type: 'manual', name: 'address', value: places[0].value })
-  }, [places, isFormVisible])
+  }, [places, isFormVisible, csvData])
 
   return (
     <div className='App container-sm card border-secondary p-5 my-5'>
