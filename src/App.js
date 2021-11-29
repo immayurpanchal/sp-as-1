@@ -33,8 +33,15 @@ const App = () => {
   const { places, handlePlaceSearch } = useGooglePlace()
 
   const handleSubmit = e => {
-    e.target.checkValidity() ? setDataValid(true) : setDataValid(false)
     e.preventDefault()
+
+    if (e.target.checkValidity()) {
+      setDataValid(true)
+      setFormSubmit(false)
+    } else {
+      setDataValid(false)
+      setFormSubmit(true)
+    }
 
     e.target.classList.add('was-validated')
   }
