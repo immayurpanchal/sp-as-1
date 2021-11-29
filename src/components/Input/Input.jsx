@@ -6,20 +6,22 @@ const Input = props => {
   return (
     <>
       {label && (
-        <label htmlFor={id} className='col-sm-2 col-form-label'>
+        <label className='col-sm-2 col-form-label' htmlFor={id}>
           {label}
         </label>
       )}
       <div className='col-sm-10'>
         <input
           {...restProps}
+          className='form-control'
           name={id}
           value={value || ''}
-          className='form-control'
           onInput={e => {
-            if (typeof props.validate !== 'function') return
+            if (typeof validate !== 'function') {
+              return
+            }
 
-            const isValidVal = !!props.validate(e)
+            const isValidVal = !!validate(e)
             if (!isValidVal) {
               e.currentTarget.setCustomValidity(errorMessage)
             } else {
