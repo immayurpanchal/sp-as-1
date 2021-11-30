@@ -32,6 +32,41 @@ const App = () => {
   const [featuredImage, setFeaturedImage] = useState(null)
   const { places, handlePlaceSearch } = useGooglePlace()
 
+  useEffect(() => {
+    if (isFormVisible) {
+      const form = document.querySelector('[name=theForm]')
+      form?.checkValidity() ? setDataValid(true) : setDataValid(false)
+    }
+  }, [state, isFormVisible])
+
+  useEffect(() => {
+    if (!isFormVisible || !csvData) {
+      return
+    }
+
+    // Handled CSV file invalid data to some default values
+    dispatch({
+      type: 'csv',
+      value: {
+        address: csvData.address || '',
+        bedroom: +csvData.bedroom || 1,
+        bathroom: +csvData.bathroom || 1,
+        description: csvData.description || ''
+      }
+    })
+  }, [csvData, isFormVisible])
+
+  useEffect(() => {
+    handlePlaceSearch()
+  }, [handlePlaceSearch])
+
+  useEffect(() => {
+    if (!places.length || !isFormVisible || csvData) {
+      return
+    }
+    dispatch({ type: 'manual', name: 'address', value: places[0].value })
+  }, [places, isFormVisible, csvData])
+
   const handleSubmit = e => {
     e.preventDefault()
 
@@ -264,41 +299,6 @@ const App = () => {
     // eslint-disable-next-line no-console
     console.log({ ...state, images, featuredImage })
   }
-
-  useEffect(() => {
-    if (isFormVisible) {
-      const form = document.querySelector('[name=theForm]')
-      form?.checkValidity() ? setDataValid(true) : setDataValid(false)
-    }
-  }, [state, isFormVisible])
-
-  useEffect(() => {
-    if (!isFormVisible || !csvData) {
-      return
-    }
-
-    // Handled CSV file invalid data to some default values
-    dispatch({
-      type: 'csv',
-      value: {
-        address: csvData.address || '',
-        bedroom: +csvData.bedroom || 1,
-        bathroom: +csvData.bathroom || 1,
-        description: csvData.description || ''
-      }
-    })
-  }, [csvData, isFormVisible])
-
-  useEffect(() => {
-    handlePlaceSearch()
-  }, [handlePlaceSearch])
-
-  useEffect(() => {
-    if (!places.length || !isFormVisible || csvData) {
-      return
-    }
-    dispatch({ type: 'manual', name: 'address', value: places[0].value })
-  }, [places, isFormVisible, csvData])
 
   return (
     <div className='App container-sm card border-secondary p-5 my-5'>
