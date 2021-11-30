@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { mockPlaces } from '../utils/mockData'
 
 const useGooglePlace = () => {
@@ -6,14 +6,14 @@ const useGooglePlace = () => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
-  const handlePlaceSearch = () => {
+  const handlePlaceSearch = useCallback(() => {
     setLoading(true)
     // Mock API call to fetch the Google Plus API response
     setTimeout(() => {
       setLoading(false)
       setPlaces(mockPlaces)
     }, 500)
-  }
+  }, [])
 
   useEffect(() => {
     setError(false)
