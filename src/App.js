@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { useEffect, useReducer, useState } from 'react'
 import './App.css'
 import DataList from './components/DataList'
@@ -83,13 +84,10 @@ const App = () => {
 
   const renderForm = () => {
     return (
-      <form
-        noValidate
-        className='mt-5 needs-validation'
-        name='form-sp'
-        onSubmit={handleSubmit}>
+      <form noValidate className='mt-5 needs-validation' name='form-sp' onSubmit={handleSubmit}>
         <div className='mb-5 row'>
           <DataList
+            required
             errorMessage='Address must be a valid address'
             id='address'
             label='Address'
@@ -107,7 +105,6 @@ const App = () => {
         </div>
         <div className='mb-5 row'>
           <Input
-            key='bedroom'
             required
             errorMessage='Bedroom must be between 1 and 10'
             id='bedroom'
@@ -115,7 +112,6 @@ const App = () => {
             max='10'
             min='1'
             type='number'
-            validate={({ target: { value } }) => +value >= 1 && +value <= 10}
             value={state.bedroom || 0}
             onChange={e =>
               dispatch({
@@ -128,7 +124,6 @@ const App = () => {
         </div>
         <div className='mb-5 row'>
           <Input
-            key='bathroom'
             required
             errorMessage='Bathroom must be between 1 and 5'
             id='bathroom'
@@ -136,7 +131,6 @@ const App = () => {
             max='5'
             min='1'
             type='number'
-            validate={({ target: { value } }) => +value >= 1 && +value <= 5}
             value={state.bathroom || 0}
             onChange={e =>
               dispatch({
@@ -149,12 +143,13 @@ const App = () => {
         </div>
         <div className='mb-5 row'>
           <Input
-            key='description'
+            // required
             className='form-control'
+            // errorMessage='Description must be > 5 chars'
             id='description'
             label='Description'
             type='textarea'
-            validate={() => true}
+            // validate={e => e.target.value.length > 5}
             value={state.description || ''}
             onChange={e =>
               dispatch({
@@ -166,16 +161,11 @@ const App = () => {
           />
         </div>
         <div className='d-flex justify-content-center'>
-          <button
-            className='btn btn-primary mx-3 col-4'
-            id='btn-validate'
-            type='submit'>
+          <button className='btn btn-primary mx-3 col-4' id='btn-validate' type='submit'>
             Validate
           </button>
           <button
-            className={`btn btn-primary col-4 ${
-              !isDataValid ? 'disabled' : ''
-            }`}
+            className={`btn btn-primary col-4 ${!isDataValid ? 'disabled' : ''}`}
             id='btn-submit'
             type='button'
             onClick={() => setFormSubmit(true)}>
@@ -201,7 +191,7 @@ const App = () => {
   const renderDragDrop = () => {
     return (
       <div
-        className='shadow mt-5 border-3 mb-5'
+        className='shadow mt-5 border-3 mb-5 d-flex align-items-center justify-content-center'
         id='drag-region'
         style={{ height: '200px' }}
         onDragOver={e => e.preventDefault()}
@@ -210,6 +200,8 @@ const App = () => {
           e.stopPropagation()
 
           const files = Array.from(e.dataTransfer.files)
+          // Images length = no. of images currently in the state
+          // files length = no. of images dropped
           if (images.length + files.length > 4) {
             // eslint-disable-next-line no-alert
             return alert('You can only upload 4 images')
@@ -223,8 +215,13 @@ const App = () => {
           }
 
           const imagePromises = files.map(async file => {
-            return await getBase64(file)
+            return getBase64(file)
           })
+
+          // It returns a promise that always resolves after
+          // all of the given promises
+          // have either fulfilled or rejected, with an array of objects that
+          // each describes the outcome of each promise.
           Promise.allSettled(imagePromises)
             .then(results => {
               const images64 = results.map(result => result.value)
@@ -233,9 +230,10 @@ const App = () => {
             .catch(err => {
               console.error(err)
             })
+
           return 0
         }}>
-        <div className=''>Drag & Drop images to upload</div>
+        <div className='h3'>Drag & Drop images to upload (Max 4)</div>
       </div>
     )
   }
@@ -245,26 +243,16 @@ const App = () => {
       <div className='d-flex flex-wrap'>
         {images.map((image, index) => {
           return (
-            <div
-              key={`featured-image-${index}`}
-              className='form-check mt-5 d-flex align-items-center'>
+            <div key={`featured-image-${index}`} className='form-check mt-5 d-flex align-items-center'>
               <input
                 className='form-check-input'
                 id={`featured-image-${index}`}
                 name='featured-image'
                 type='radio'
-                onChange={e =>
-                  setFeaturedImage({ id: e.target.id, url: image })
-                }
+                onChange={e => setFeaturedImage({ id: e.target.id, url: image })}
               />
               <label className='form-check-label mx-3' htmlFor='featured-image'>
-                <img
-                  key={index}
-                  alt='drag'
-                  height='150px'
-                  src={image}
-                  width='300px'
-                />
+                <img key={index} alt='drag' height='150px' src={image} width='300px' />
               </label>
             </div>
           )
@@ -281,9 +269,7 @@ const App = () => {
         const propertyData = result.split(';')
         if (file.type !== 'text/csv' || propertyData.length !== 4) {
           // eslint-disable-next-line no-alert
-          return alert(
-            'Only CSV separated with ; and must have 4 columns is allowed'
-          )
+          return alert('Only CSV separated with ; and must have 4 columns is allowed')
         }
         const [address, bedroom, bathroom, description] = propertyData
         setCsvData({ address, bedroom, bathroom, description })
@@ -300,48 +286,48 @@ const App = () => {
     console.log({ ...state, images, featuredImage })
   }
 
+  const renderStep1 = () => {
+    return (
+      <div className='d-sm-flex justify-content-center align-items-center'>
+        <button
+          className='btn btn-primary mx-3'
+          id='addManually'
+          type='button'
+          onClick={() => setFormVisibility(prevState => !prevState)}>
+          Add Manually
+        </button>
+        <span>OR</span>
+        <form
+          className='mx-3'
+          name='theForm'
+          onSubmit={e => {
+            e.preventDefault()
+          }}>
+          <Input
+            accept='.csv'
+            className='form-control'
+            errorMessage='File must be a CSV file'
+            id='formFile'
+            type='file'
+            // validate={e => e.target.files[0]?.type === 'text/csv'}
+            onChange={e => {
+              readFile(e.target.files[0])
+            }}
+          />
+        </form>
+      </div>
+    )
+  }
+
   return (
     <div className='App container-sm card border-secondary p-5 my-5'>
       <div className='d-flex flex-column'>
-        {!isFormVisible && (
-          <div className='d-sm-flex justify-content-center align-items-center'>
-            <button
-              className='btn btn-primary mx-3'
-              id='addManually'
-              type='button'
-              onClick={() => setFormVisibility(prevState => !prevState)}>
-              Add Manually
-            </button>
-            <span>OR</span>
-            <form
-              className='mx-3'
-              name='theForm'
-              onSubmit={e => {
-                e.preventDefault()
-              }}>
-              <Input
-                accept='.csv'
-                className='form-control'
-                errorMessage='File must be a CSV file'
-                id='formFile'
-                type='file'
-                validate={e => e.target.files[0]?.type === 'text/csv'}
-                onChange={e => {
-                  document.querySelector('[name=theForm]').requestSubmit()
-                  readFile(e.target.files[0])
-                }}
-              />
-            </form>
-          </div>
-        )}
+        {!isFormVisible && renderStep1()}
         {isFormVisible && renderForm()}
         {isDataValid && isFormSubmitted && renderImages()}
         {isDataValid && isFormSubmitted && renderDragDrop()}
         {isDataValid && isFormSubmitted && (
-          <button
-            className='btn btn-primary mb-5'
-            id='finalSubmit'
-            onClick={viewSubmittedForm}>
+          <button className='btn btn-primary mb-5' id='finalSubmit' onClick={viewSubmittedForm}>
             Final Submit
           </button>
         )}

@@ -20,7 +20,6 @@ const DataList = props => {
       <div className='col-sm-10'>
         <input
           {...restProps}
-          required
           className='form-control'
           list='datalistOptions'
           name={id}
