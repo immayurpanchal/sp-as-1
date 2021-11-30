@@ -3,8 +3,6 @@ import React from 'react'
 const DataList = props => {
   const { options = [], label, placeholder, id, errorMessage, value, onChange, ...restProps } = props
 
-  // eslint-disable-next-line no-console
-  console.log(label, value)
   return (
     <>
       {label && (

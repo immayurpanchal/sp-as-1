@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import { useEffect, useReducer, useState } from 'react'
 import './App.css'
 import DataList from './components/DataList'
@@ -31,7 +30,7 @@ const App = () => {
   const [isFormSubmitted, setFormSubmit] = useState(false)
   const [images, setImages] = useState([])
   const [featuredImage, setFeaturedImage] = useState(null)
-  const { places, handlePlaceSearch } = useGooglePlace()
+  const { places } = useGooglePlace('Idar')
 
   useEffect(() => {
     if (isFormVisible) {
@@ -56,10 +55,6 @@ const App = () => {
       }
     })
   }, [csvData, isFormVisible])
-
-  useEffect(() => {
-    handlePlaceSearch()
-  }, [handlePlaceSearch])
 
   useEffect(() => {
     if (!places.length || !isFormVisible || csvData) {
