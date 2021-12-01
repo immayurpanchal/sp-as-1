@@ -18,9 +18,6 @@ class ErrorBoundary extends Component {
   }
 
   render() {
-    // eslint-disable-next-line no-console
-    console.log('ErrorBoundary render')
-
     if (this.state.hasError) {
       return <h1>Something went wrong.</h1>
     }
